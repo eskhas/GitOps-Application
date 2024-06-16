@@ -1,0 +1,21 @@
+name: Increase Minor
+
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Update Minor version
+      uses: hmanzur/actions-set-secret@v2.0.0
+      with:
+        name: 'MINOR'
+        value: $((${{ secrets.MINOR }} + 1))
+        repository: eskhas/my-app
+        token: ${{ secrets.REPO_ACCESS_TOKEN }}
+    - name: Show Minor version
+      run: echo "${{ secrets.MINOR }}"

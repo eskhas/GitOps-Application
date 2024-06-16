@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Success</title>
+    <style>
+        span {
+            display: inline-block;
+            width: 200px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div th:object="${person}">
+    <h2>Registration Succeeded!</h2>
+    <span>Full name:</span><span th:text="${person.name}"></span><br/>
+    <span>Address:</span><span th:text="${person.address}"></span><br/>
+</div>
+</body>
+</html>

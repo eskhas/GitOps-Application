@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark" />
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+</head>
+<body>
+<article>
+<nav>
+    <ul>
+        <li><strong>Person</strong></li>
+    </ul>
+    <ul>
+        <li><a href="/people">People List</a></li>
+        <li><a href="/person-form">Add Person</a></li>
+    </ul>
+</nav>
+    <h1>Add New Person</h1>
+    <form th:action="@{/person}" th:object="${savePerson}"  enctype="multipart/form-data" method="post" class="container">
+        <div>
+            <label>Id</label>
+            <input type="text" th:field="*{personId}" placeholder="ID">
+        </div>
+        <div>
+            <label>Name</label>
+            <input type="text" th:field="*{name}" placeholder="Name">
+        </div>
+        <div>
+            <label>Address</label>
+            <input type="text" th:field="*{address}" placeholder="Address">
+        </div>
+        <div>
+            <label>Image</label>
+            <input type="file" th:field="*{image}">
+        </div>
+        <button type="submit" name="save">Save</button>
+    </form>
+</article>
+</body>
+</html>

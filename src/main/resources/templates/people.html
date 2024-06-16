@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>People List</title>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+</head>
+
+<body>
+<article>
+<nav>
+    <ul>
+        <li><strong>Person</strong></li>
+    </ul>
+    <ul>
+        <li><a href="/people">People List</a></li>
+        <li><a href="/person-form">Add Person</a></li>
+    </ul>
+</nav>
+<div>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Name</th>
+            <th scope="col">Address</th>
+            <th scope="col">Photo</th>
+            <th scope="col" colspan="2">OPERATIONS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${people}">
+            <td th:text="${c.personId}"></td>
+            <td th:text="${c.name}"></td>
+            <td th:text="${c.address}"></td>
+            <td>
+                <img th:src="@{${c.img_url}}" width="75px" alt="photo">
+            </td>
+            <td><button class="updateButton" name="update">Update</button></td>
+            <td><button th:onclick="remove([[${c.personId}]])" name="delete">Delete</button></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+    <dialog id="updateModal" >
+        <article>
+            <header>
+                <button aria-label="Close" rel="prev" class="closeButton"></button>
+                <p>
+                    <strong>🗓Update Person Data</strong>
+                </p>
+            </header>
+            <form >
+                <input type="hidden">
+                <div>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" >
+                </div>
+                <div>
+                    <label for="address">Address:</label>
+                    <input id="address">
+                </div>
+                <div>
+                    <label for="image">Image:</label>
+                    <input type="file" id="image" >
+                </div>
+                <button type="button" class="updateReq" name="update">Update</button>
+                <button type="button" class="closeButton">Close</button>
+            </form>
+        </article>
+    </dialog>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+<script>
+    function fetchPerson(id) {
+        $.ajax({
+            url: '/getPerson',
+            type: 'get',
+            data: {'id': id},
+            success: function(data) {
+                var person = data; // Parse the response data
+                $("#updateModal input[type='hidden']").val(person.personId);
+                $("#name").val(person.name); // Set name field value
+                $("#address").val(person.address); // Set address field value
+
+                // Create an img tag to display the current image
+                var img = $('<img />', {
+                    id: 'currentImage',
+                    src: person.image,
+                    alt: 'Current Image',
+                    width: '100px'
+                });
+                img.appendTo('#updateModal');
+            },
+            error: function(result) {
+                alert("Error: " + result);
+            }
+        });
+    }
+
+    function update() {
+        var personId = $("#updateModal input[type='hidden']").val();
+        var name = $("#name").val();
+        var address = $("#address").val();
+        var image = $("#image")[0].files[0]; // Get the file from the input
+        var reader = new FileReader(); // Create a FileReader to read the file
+        reader.onload = function(e) { // Define the onload event for the reader
+            var imageBase64 = e.target.result; // The base64 string
+            // Now send the data via AJAX
+            $.ajax({
+                url: '/person',
+                type: 'PUT',
+                data: {
+                    'personId': personId,
+                    'name': name,
+                    'address': address,
+                    'img': imageBase64 // Send the base64 string
+                },
+                success: function() {
+                    updateModal.close();
+                    alert("Success!");
+                    $.ajax({
+                        url: '/people',
+                        type: 'GET'
+                    });
+                },
+                error: function(result) {
+                    alert("Error: " + result);
+                }
+            });
+        };
+
+        // Read the file as a Data URL (base64 string)
+        reader.readAsDataURL(image);
+    }
+
+
+    function remove(id){
+        $.ajax({
+            url: '/person',
+            type: 'delete',
+            data: { 'id': id ,'delete':''},
+            success: function( data ) {
+                $('#placeholder').html(data);
+            },
+            error: function(result){
+                alert("Error: " + result);
+            }
+        });
+    }
+</script>
+<script>
+    $(document).ready(function() {
+        $(".updateButton").click(function() {
+            const id = $(this).closest("tr").find("td:first").text(); // Get ID from table row
+            fetchPerson(id);
+            updateModal.showModal();
+        });
+
+        $(".closeButton").click(function() {
+            updateModal.close();
+        });
+        $(".updateReq").click(function (){
+            update();
+        });
+
+        // Optional: Close modal on clicking outside the content
+        /*$("#updateModal").dialog({
+            modal: true,
+            clickOutside: function(event, ui) {
+                if (!$(event.target).closest("#updateModal").length) {
+                    $(this).dialog("close");
+                }
+            }
+        });*/
+    });
+</script>
+</article>
+</body>
+</html>
